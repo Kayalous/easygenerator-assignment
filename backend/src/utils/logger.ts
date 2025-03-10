@@ -1,7 +1,13 @@
 import { createLogger, format, transports } from 'winston';
 import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 const logDir = join(__dirname, '../../logs');
+
+// Ensure logs directory exists
+if (!existsSync(logDir)) {
+  mkdirSync(logDir, { recursive: true });
+}
 
 const formatMetadata = (info: Record<string, unknown>): string => {
   const metadata = { ...info };

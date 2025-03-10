@@ -14,8 +14,12 @@ export interface Response<T> {
   timestamp: string;
 }
 
+interface ResponseData {
+  message?: string;
+}
+
 @Injectable()
-export class TransformInterceptor<T>
+export class TransformInterceptor<T extends ResponseData>
   implements NestInterceptor<T, Response<T>>
 {
   intercept(
@@ -23,10 +27,10 @@ export class TransformInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     const ctx = context.switchToHttp();
-    const response = ctx.getResponse();
+    const response = ctx.getResponse<{ statusCode: number }>();
 
     return next.handle().pipe(
-      map((data) => ({
+      map((data: T) => ({
         data,
         statusCode: response.statusCode,
         message: data.message || 'Success',

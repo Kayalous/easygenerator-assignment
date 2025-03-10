@@ -11,6 +11,12 @@ build/
 **/build/
 frontend/build/
 backend/build/
+backend/logs/
+**/logs/
+frontend/logs/
+backend/logs/app.log
+**/logs/app.log
+frontend/logs/app.log
 
 # Environment variables
 .env

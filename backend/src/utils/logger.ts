@@ -3,6 +3,18 @@ import { join } from 'path';
 
 const logDir = join(__dirname, '../../logs');
 
+const formatMetadata = (info: Record<string, unknown>): string => {
+  const metadata = { ...info };
+  delete metadata.timestamp;
+  delete metadata.level;
+  delete metadata.message;
+  delete metadata.stack;
+
+  return Object.keys(metadata).length
+    ? `\n${JSON.stringify(metadata, null, 2)}`
+    : '';
+};
+
 export const logger = createLogger({
   level: 'info',
   format: format.combine(
@@ -19,8 +31,10 @@ export const logger = createLogger({
     new transports.Console({
       format: format.combine(
         format.colorize(),
-        format.printf(({ timestamp, level, message }) => {
-          return `${timestamp} ${level}: ${message}`;
+        format.printf((info) => {
+          const { timestamp, level, message } = info;
+          const meta = formatMetadata(info);
+          return `${String(timestamp)} ${String(level)}: ${String(message)}${meta}`;
         }),
       ),
     }),
@@ -28,9 +42,11 @@ export const logger = createLogger({
     new transports.File({
       filename: join(logDir, 'app.log'),
       format: format.combine(
-        format.printf(({ timestamp, level, message, stack }) => {
-          const stackTrace = stack ? `\n${stack}` : '';
-          return `${timestamp} ${level}: ${message}${stackTrace}`;
+        format.printf((info) => {
+          const { timestamp, level, message, stack } = info;
+          const meta = formatMetadata(info);
+          const stackTrace = typeof stack === 'string' ? `\n${stack}` : '';
+          return `${String(timestamp)} ${String(level)}: ${String(message)}${meta}${stackTrace}`;
         }),
       ),
     }),
